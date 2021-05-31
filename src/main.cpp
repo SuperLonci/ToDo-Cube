@@ -131,5 +131,4 @@ void todoChecked(int side) {
     strip.show();
     delay(10); 
   }
-
 }
