@@ -10,12 +10,11 @@ const int SWITCH3PIN = 34;
 const int SWITCH4PIN = 4;
 const int TOPBTNPIN = 15;
 
-void rainbow(int);
-void rainbowchaseExit();
-void colorWipe();
-void changeColor(uint32_t);
 void todoChecked(int);
-void theaterChase(uint32_t, int);
+void setlayercolor(int layer, int brightness);
+void bootupanimation();
+void colorbuttonanimation();
+void successanimation();
 
 bool switch1 = false;
 bool switch2 = false;
@@ -25,13 +24,7 @@ bool alldone = false;
 
 Adafruit_NeoPixel strip(NUMPIXELS, LEDPIN, NEO_GRB + NEO_KHZ800);
 
-// Colour of individual sides
-const uint32_t side_colors[] = { 
-  strip.Color(255, 0, 0),   // red
-  strip.Color(0, 255, 0),   // green
-  strip.Color(0, 0, 255),   // blue
-  strip.Color(255, 0, 255)  // turqouise
-};
+const int rotpos[] = {2,1,0,0,1,2,3,3,6,5,4,4,5,6,7,7,10,9,8,8,9,10,11,11,14,13,12,12,13,14,15,15};
 
 void setup() {
   pinMode(SWITCH1PIN, INPUT);
@@ -45,6 +38,8 @@ void setup() {
   strip.clear();            // Set all pixel colors to 'off'
 
   Serial.begin(9600);
+
+  bootupanimation();
 }
 
 void loop() {
@@ -70,29 +65,12 @@ void loop() {
   }
 
   if (digitalRead(TOPBTNPIN)){
-    strip.clear();
-    for(int s=0; s < 4; s++){
-      for(int i=s*8; i<8*(s+1); i++) {
-        strip.setPixelColor(i, side_colors[s]);
-      }
-    }
-    strip.show();
-    delay(5000);
+    colorbuttonanimation();
   }
 
   if ((switch1 == switch2) && (switch2 == switch3) && (switch3 == switch4) && alldone){
     alldone = false;
-
-    for(int a=0; a<5; a++) {
-      for(int b=0; b<2; b++) {
-        strip.clear();
-        for(int c=b; c<strip.numPixels(); c += 3) {
-          strip.setPixelColor(c, strip.Color(0, 200, 100));
-        }
-        strip.show();
-        delay(500);
-      }
-    }
+    successanimation();
   }
   
   strip.clear();
@@ -130,5 +108,170 @@ void todoChecked(int side) {
     }
     strip.show();
     delay(10); 
+  }
+}
+
+void setlayercolor(int layer, int brightness)
+{
+    switch (layer)
+    {
+        case 0:
+        {
+            strip.setPixelColor(0, strip.Color(brightness, 0, 0));
+            strip.setPixelColor(1, strip.Color(brightness, 0, 0));
+            strip.setPixelColor(8, strip.Color(0, brightness, 0));
+            strip.setPixelColor(9, strip.Color(0, brightness, 0));
+            strip.setPixelColor(16, strip.Color(0, 0, brightness));
+            strip.setPixelColor(17, strip.Color(0, 0, brightness));
+            strip.setPixelColor(24, strip.Color(brightness, 0, brightness));
+            strip.setPixelColor(25, strip.Color(brightness, 0, brightness));
+            break;
+        }
+        case 1:
+        {
+            strip.setPixelColor(2, strip.Color(brightness, 0, 0));
+            strip.setPixelColor(7, strip.Color(brightness, 0, 0));
+            strip.setPixelColor(10, strip.Color(0, brightness, 0));
+            strip.setPixelColor(15, strip.Color(0, brightness, 0));
+            strip.setPixelColor(18, strip.Color(0, 0, brightness));
+            strip.setPixelColor(23, strip.Color(0, 0, brightness));
+            strip.setPixelColor(26, strip.Color(brightness, 0, brightness));
+            strip.setPixelColor(31, strip.Color(brightness, 0, brightness));
+            break;
+        }
+        case 2:
+        {
+            strip.setPixelColor(3, strip.Color(brightness, 0, 0));
+            strip.setPixelColor(6, strip.Color(brightness, 0, 0));
+            strip.setPixelColor(11, strip.Color(0, brightness, 0));
+            strip.setPixelColor(14, strip.Color(0, brightness, 0));
+            strip.setPixelColor(19, strip.Color(0, 0, brightness));
+            strip.setPixelColor(22, strip.Color(0, 0, brightness));
+            strip.setPixelColor(27, strip.Color(brightness, 0, brightness));
+            strip.setPixelColor(30, strip.Color(brightness, 0, brightness));
+            break;
+        }
+        case 3:
+        {
+            strip.setPixelColor(4, strip.Color(brightness, 0, 0));
+            strip.setPixelColor(5, strip.Color(brightness, 0, 0));
+            strip.setPixelColor(12, strip.Color(0, brightness, 0));
+            strip.setPixelColor(13, strip.Color(0, brightness, 0));
+            strip.setPixelColor(20, strip.Color(0, 0, brightness));
+            strip.setPixelColor(21, strip.Color(0, 0, brightness));
+            strip.setPixelColor(28, strip.Color(brightness, 0, brightness));
+            strip.setPixelColor(29, strip.Color(brightness, 0, brightness));
+            break;
+        }
+    }
+}
+
+void bootupanimation() {
+  strip.clear();
+  strip.show();
+  for (int i = 0; i < 4; ++i)
+  {
+      for (int j = 0; j < 17; ++j)
+      {
+          setlayercolor(i, j * 255 / 17);
+          strip.show();
+          delay(40);
+      }
+  }
+  for (int i = 0; i < 8; ++i)
+  {
+      for (int j = 17 - 1; j >= 0; --j)
+      {
+          strip.setPixelColor((i + 1) % 8, strip.Color(j * 255 / 17, 0, 0));
+          strip.setPixelColor((i + 1) % 8 + 8, strip.Color(0, j * 255 / 17, 0));
+          strip.setPixelColor((i + 1) % 8 + 16, strip.Color(0, 0, j * 255 / 17));
+          strip.setPixelColor((i + 1) % 8 + 24, strip.Color(j * 255 / 17, 0, j * 255 / 17));
+          strip.show();
+          delay(5);
+      }
+  }
+  delay(1000);
+}
+
+void colorbuttonanimation() {
+  for (int i = 4 - 1; i >= 0; --i)
+  {
+      for (int j = 0; j < 17; ++j)
+      {
+          setlayercolor(i, j * 255 / 17);
+          strip.show();
+          delay(5);
+      }
+  }
+  delay(500);
+  for (int i = 0; i < 4; ++i)
+  {
+      for (int j = 17 - 1; j >= 0; --j)
+      {
+          setlayercolor(i, j * 255 / 17);
+          strip.show();
+          delay(5);
+      }
+  }
+}
+
+void successanimation() {
+  // Rainbow circle
+  for(int i = 0; i < 40; ++i)
+  {
+      for (int j = 0; j < 32; ++j)
+      {
+          strip.setPixelColor(j, strip.ColorHSV((i * 5000 + (j % 8 * (65535 / 8))) % 65535));
+      }
+      strip.show();
+      delay(50);
+  }
+
+  // Yellow blinks
+  for (int i = 0; i < 10; ++i)
+  {
+      for (int j = 0; j < 32; ++j)
+      {
+          strip.setPixelColor(j, strip.Color(i % 2 * 255, i % 2 * 255, 0));
+      }
+      strip.show();
+      delay(100);
+  }
+
+  // Rainbow around
+  for (int i = 0; i < 40; ++i)
+  {
+      for (int j = 0; j < 32; ++j)
+      {
+          strip.setPixelColor(j, strip.ColorHSV((i * 3000 + (rotpos[j] * (65535 / 16))) % 65535));
+      }
+      strip.show();
+      delay(50);
+  }
+
+  // Line Around
+  for (int i = 0; i < 40; ++i)
+  {
+      strip.clear();
+      for (int j = 0; j < 32; ++j)
+      {
+          int rotindex = i % 16 + 16;
+          if (rotpos[j] + 16 - rotindex == 0)
+              strip.setPixelColor(j, strip.Color(0, 255, 0));
+          if (rotpos[j] + 16 - rotindex == 1 || rotpos[j] + 16 - rotindex == -1)
+              strip.setPixelColor(j, strip.Color(0, 127, 0));
+      }
+      strip.show();
+      delay(50);
+  }
+
+  for (int i = 0; i < 100; ++i)
+  {
+      for (int j = 0; j < 32; ++j)
+      {
+          strip.setPixelColor(j, strip.ColorHSV((i * 3000) % 65535, 255, 255 - i * 255 / 100));
+      }
+      strip.show();
+      delay(50);
   }
 }
